@@ -41,8 +41,8 @@ export const materialPresets: Record<MaterialPresetKey, MaterialPreset> = {
     label: "Matte Black",
     material: {
       color: "#2b2b2b",
-      metalness: 0.49,
-      roughness: 0.68,
+      metalness: 0.60,
+      roughness: 0.55,
     },
   },
   bronze: {

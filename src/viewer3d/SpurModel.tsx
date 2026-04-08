@@ -1,7 +1,8 @@
 import ModelLoader from "./ModelLoader";
 import type { SpurConfig, SpurMaterial } from "../types/spur";
-import { spurParts } from "../configurator/spourParts";
 import { rowelParts } from "../configurator/rowelParts";
+import { bowParts } from "../configurator/bowParts";
+import { shankParts } from "../configurator/shankParts";
 import { rowelMountsByBow } from "../configurator/rowelMounts";
 
 type SpurModelProps = {
@@ -29,7 +30,7 @@ function Bow({
   variant: "model1" | "model2";
   material: SpurMaterial;
 }) {
-  const part = spurParts.bow[variant];
+  const part = bowParts[variant];
 
   return (
     <ModelLoader
@@ -49,7 +50,7 @@ function Shank({
   variant: "model1" | "model2";
   material: SpurMaterial;
 }) {
-  const part = spurParts.shank[variant];
+  const part = shankParts[variant];
 
   return (
     <ModelLoader

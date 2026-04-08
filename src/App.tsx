@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Viewer3D from "./viewer3d/Viewer3D";
 import type { SpurConfig } from "./types/spur";
 import { rowelParts } from "./configurator/rowelParts";
@@ -7,11 +7,56 @@ import {
   type MaterialPresetKey,
 } from "./configurator/materialPresets";
 
+function syncHostingerOption(selectId: string, visibleLabel: string) {
+  const select = document.getElementById(selectId) as HTMLSelectElement | null;
+  if (!select) return;
+
+  const option = Array.from(select.options).find(
+    (o) => o.text.trim().toLowerCase() === visibleLabel.trim().toLowerCase()
+  );
+
+  if (!option) return;
+
+  if (select.value !== option.value) {
+    select.value = option.value;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+}
+
+function mapRowelToHostinger(rowelId: string): string {
+  const map: Record<string, string> = {
+    roseta_a: "Estrela",
+    roseta_07_pontas: "7 pontas",
+
+    sfw_sp_015: "Trevo",
+    sfw_sp_014: "Trevo",
+    sfw_sp_010: "Trevo",
+    sfw_sp_009: "Trevo",
+    sfw_sp_008: "Trevo",
+    sfw_sp_007: "Estrela",
+    sfw_sp_006: "Estrela",
+    sfw_sp_005: "Estrela",
+    sfw_sp_004: "Estrela",
+  };
+
+  return map[rowelId] ?? "";
+}
+
+function mapMaterialToHostinger(
+  selectedPreset: string,
+  material: { metalness: number; roughness: number; color: string }
+): string {
+  if (selectedPreset === "polishedSteel") return "Polished";
+  if (selectedPreset === "matteBlack") return "Matte";
+
+  return material.roughness <= 0.3 ? "Polished" : "Matte";
+}
+
 function App() {
   const [selectedPreset, setSelectedPreset] =
     useState<MaterialPresetKey>("steel");
 
-  const [backgroundTone, setBackgroundTone] = useState(255);
+  const [backgroundTone, setBackgroundTone] = useState(95);
 
   const [config, setConfig] = useState<SpurConfig>({
     bow: "model1",
@@ -49,6 +94,18 @@ function App() {
   }
 
   const viewerBackgroundColor = toGrayHex(backgroundTone);
+
+  useEffect(() => {
+    const rowelLabel = mapRowelToHostinger(config.rowel);
+    if (rowelLabel) {
+      syncHostingerOption("option-Rowel", rowelLabel);
+    }
+
+    const finishLabel = mapMaterialToHostinger(selectedPreset, config.material);
+    if (finishLabel) {
+      syncHostingerOption("option-Finish", finishLabel);
+    }
+  }, [config.rowel, config.material, selectedPreset]);
 
   return (
     <div
@@ -147,7 +204,7 @@ function App() {
 
           <div style={{ marginBottom: "12px" }}>
             <label style={{ display: "block", marginBottom: "6px", fontSize: "14px" }}>
-              Rougosidade: {config.material.roughness.toFixed(2)}
+              Rugosidade: {config.material.roughness.toFixed(2)}
             </label>
             <input
               type="range"

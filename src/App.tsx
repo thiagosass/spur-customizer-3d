@@ -8,6 +8,8 @@ import {
 } from "./configurator/materialPresets";
 
 function syncHostingerOption(selectId: string, visibleLabel: string) {
+  if (typeof document === "undefined") return;
+
   const select = document.getElementById(selectId) as HTMLSelectElement | null;
   if (!select) return;
 
@@ -65,6 +67,26 @@ function App() {
     material: { ...materialPresets.steel.material },
   });
 
+  const [hostingerDebug, setHostingerDebug] = useState({
+    rowel: false,
+    finish: false,
+    shank: false,
+  });
+
+  function checkHostingerDOM() {
+    if (typeof document === "undefined") return;
+
+    const rowel = document.getElementById("option-Rowel");
+    const finish = document.getElementById("option-Finish");
+    const shank = document.getElementById("option-Shank Length");
+
+    setHostingerDebug({
+      rowel: !!rowel,
+      finish: !!finish,
+      shank: !!shank,
+    });
+  }
+
   function applyMaterialPreset(presetKey: MaterialPresetKey) {
     setSelectedPreset(presetKey);
     setConfig((prev) => ({
@@ -107,6 +129,14 @@ function App() {
     }
   }, [config.rowel, config.material, selectedPreset]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      checkHostingerDOM();
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div
       style={{
@@ -131,6 +161,20 @@ function App() {
         }}
       >
         <h2>Spur Customizer 3D</h2>
+        <div style={{
+          position: "absolute",
+          top: 10,
+          right: 10,
+          background: "#000",
+          color: "#0f0",
+          padding: "10px",
+          fontSize: "12px",
+          zIndex: 9999
+        }}>
+          <div>Rowel: {hostingerDebug.rowel ? "✅" : "❌"}</div>
+          <div>Finish: {hostingerDebug.finish ? "✅" : "❌"}</div>
+          <div>Shank: {hostingerDebug.shank ? "✅" : "❌"}</div>
+        </div>
 
         <div style={{ marginBottom: "24px" }}>
           <h3 style={{ fontSize: "15px" }}>Pré-definições de Material</h3>
